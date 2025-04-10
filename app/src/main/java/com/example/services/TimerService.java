@@ -1,5 +1,6 @@
 package com.example.services;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -22,6 +23,7 @@ public class TimerService extends Service {
     int seconds = 0;
     NotificationManager notificationManager;
 
+    // Инициализирует менеджер уведомлений и создает канал уведомлений для Android 8 и выше
     @Override
     public void onCreate() {
         super.onCreate();
@@ -30,32 +32,37 @@ public class TimerService extends Service {
         handler = new Handler(Looper.getMainLooper());
     }
 
+    // Запускает таймер в фоновом режиме
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForegroundTimer();
-        return START_STICKY;
+        return START_STICKY; // Сервис перезапускается при его завершении
     }
 
+    // Запускает таймер и отображает уведомление
+    @SuppressLint("ForegroundServiceType")
     private void startForegroundTimer() {
         timerRunnable = new Runnable() {
             @Override
             public void run() {
                 seconds++;
                 updateNotification();
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 1000);// Вызывает себя каждую секунду
             }
         };
         handler.post(timerRunnable);
 
         Notification notification = createNotification();
-        startForeground(NOTIFICATION_ID, notification);
+        startForeground(NOTIFICATION_ID, notification); // Отображает уведомление
     }
 
+    // Обновляет текст уведомления каждую секунду
     private void updateNotification() {
         Notification notification = createNotification();
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
+    // Создает уведомление с текущим временем работы таймера
     private Notification createNotification() {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Таймер работает")
@@ -66,6 +73,7 @@ public class TimerService extends Service {
                 .build();
     }
 
+    // Создает канал уведомлений для Android 8 и выше
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
@@ -78,12 +86,14 @@ public class TimerService extends Service {
         }
     }
 
+    // Останавливает таймер и убирает уведомление
     @Override
     public void onDestroy() {
         super.onDestroy();
         stopTimer();
     }
 
+    // Останавливает таймер и убирает уведомление
     private void stopTimer() {
         if (handler != null && timerRunnable != null) {
             handler.removeCallbacks(timerRunnable);

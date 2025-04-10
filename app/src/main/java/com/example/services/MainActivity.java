@@ -33,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private void startTimerService() {
         Intent serviceIntent = new Intent(this, TimerService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
+            startForegroundService(serviceIntent);// Для Android 8+
         } else {
-            startService(serviceIntent);
+            startService(serviceIntent);// Для старых версий
         }
     }
 
